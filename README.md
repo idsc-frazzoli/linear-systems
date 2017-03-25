@@ -1,6 +1,7 @@
 # linear-systems
 Simple class for strictly proper SISO linear systems
 
+the main.cpp file demonstrates a system approximating a pure differentiator with a rolloff at 20rad/sec
 
 ## Functionality
 -Intended for non-uniform time steps
