@@ -53,6 +53,7 @@ Polynomial operator*(const double& c, const Polynomial& p){
 
 Polynomial operator+(const Polynomial& p, const Polynomial& q){
   Polynomial out(std::max(p.coeffs.size(),q.coeffs.size()));
+// implementation incomplete in case p and q are different size
   for(int i=0;i<std::min(p.coeffs.size(),q.coeffs.size());i++){
     out.coeffs[i]=p.coeffs[i]+q.coeffs[i];
   }
@@ -61,6 +62,7 @@ Polynomial operator+(const Polynomial& p, const Polynomial& q){
 
 Polynomial operator-(const Polynomial& q, const Polynomial& p){
   Polynomial out(std::max(p.coeffs.size(),q.coeffs.size()));
+// implementation incomplete in case p and q are different size
   for(int i=0;i<p.coeffs.size();i++){
     if(i<=q.coeffs.size()){out.coeffs[i] = q.coeffs[i]-p.coeffs[i];}
     else{out.coeffs[i] = -(double)(p.coeffs[i]);}
@@ -125,8 +127,11 @@ public:
         state[i] += dt*state[i+1];
       }
       for(int i=0;i<state.size();i++){
+// (?) can abbreviate to
+// state[state.size()-1] -= dt*( (state[i])*(den.coeffs[i]));
         state[state.size()-1] = state[state.size()-1] - dt*( (state[i])*(den.coeffs[i])); 
       }
+        // linear blending of past control input and u_now
         state[state.size()-1] += dt*(u_now*j+(num_steps-j)*input)/num_steps;
     }
     
@@ -169,7 +174,7 @@ SisoSystem operator*(const double& c, const SisoSystem& sys){
 
 SisoSystem operator/(const SisoSystem& sys1, const SisoSystem& sys2){
   Polynomial num = sys1.num*sys2.den;
-  Polynomial den = sys1.num*sys2.den;
+  Polynomial den = sys1.num*sys2.den; // copy pasted => Polynomial den = sys2.num*sys1.den;
   return SisoSystem(num.coeffs, den.coeffs, sys1.time, std::min(sys1.max_time_step,sys2.max_time_step));
 }
 
