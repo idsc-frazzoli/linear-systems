@@ -29,8 +29,6 @@ public:
     }
     return out;
   }
-  
-  
 };  
 
 Polynomial operator*(const Polynomial& p, const Polynomial& q){
@@ -51,19 +49,47 @@ Polynomial operator*(const double& c, const Polynomial& p){
   return out;
 }
 
+//p(t)+q(t)
 Polynomial operator+(const Polynomial& p, const Polynomial& q){
-  Polynomial out(std::max(p.coeffs.size(),q.coeffs.size()));
-  for(int i=0;i<std::min(p.coeffs.size(),q.coeffs.size());i++){
+  int min = std::min(p.coeffs.size(),q.coeffs.size());
+  int max = std::max(p.coeffs.size(),q.coeffs.size());
+  Polynomial out(max);
+  
+  for(int i=0;i<min;i++){
     out.coeffs[i]=p.coeffs[i]+q.coeffs[i];
+  }
+  
+  if(p.coeffs.size()<q.coeffs.size()){
+    for(int i=min;i<max;i++){
+      out.coeffs[i]=q.coeffs[i];
+    }
+  }
+  else{
+    for(int i=min;i<max;i++){
+      out.coeffs[i]=p.coeffs[i];
+    }
   }
   return out;
 }
 
+//q(t)-p(t)
 Polynomial operator-(const Polynomial& q, const Polynomial& p){
-  Polynomial out(std::max(p.coeffs.size(),q.coeffs.size()));
-  for(int i=0;i<p.coeffs.size();i++){
-    if(i<=q.coeffs.size()){out.coeffs[i] = q.coeffs[i]-p.coeffs[i];}
-    else{out.coeffs[i] = -(double)(p.coeffs[i]);}
+  int min = std::min(p.coeffs.size(),q.coeffs.size());
+  int max = std::max(p.coeffs.size(),q.coeffs.size());
+  Polynomial out(max);
+  for(int i=0;i<min;i++){
+    out.coeffs[i] = q.coeffs[i]-p.coeffs[i];
+  }
+  
+  if(p.coeffs.size()<q.coeffs.size()){
+    for(int i=min;i<max;i++){
+      out.coeffs[i]=q.coeffs[i];
+    }
+  }
+  else{
+    for(int i=min;i<max;i++){
+      out.coeffs[i]=-p.coeffs[i];
+    }
   }
   return out;
 }
@@ -75,7 +101,7 @@ Polynomial operator-(const Polynomial& q, const Polynomial& p){
     
   }
   
-//CT-LTI-SISO system that is updated based on (input,time) pairs. zero order hold.
+//CT-LTI-SISO system that is updated based on (input,time) pairs. first order hold.
 //denominator[0]y(s)+denominator[1]y'(s)+...+denominator[k]y^(k)(s) = numerator[0]u(x)+...
 class SisoSystem{
 public:
@@ -90,7 +116,7 @@ public:
 
   /* Provide the numerator and denominator of the transfer function and the time of the first time time 
   y(s)/u(s) = (num[0]+num[1]s+...+num[m]s^m)/(den[0]+den[1]s+...+den[n]s^n) */
-  SisoSystem(const array& _num, const array& _den, const double& t_0, const double& _max_time_step) : num(_num), den(_den), state(0.0,_den.size()-1), time(t_0),output(0.0),max_time_step(_max_time_step){
+  SisoSystem(const array& _num, const array& _den, const double& t_0, const double& _max_time_step) : num(_num), den(_den), state(0.0,_den.size()-1), time(t_0),output(0.0),max_time_step(_max_time_step),input(0.0){
     
     //Put into canonical form
     if(_den.size()<2){
@@ -119,7 +145,7 @@ public:
   
     
     //take num_steps euler steps
-    for(int j=0;j<num_steps;j++){
+    for(int j=0;j<=num_steps;j++){
       //x[k+1] = x[k] + (A*dt)x[k]
       for(int i=0;i<(state.size()-1);i++){
         state[i] += dt*state[i+1];
@@ -127,7 +153,8 @@ public:
       for(int i=0;i<state.size();i++){
         state[state.size()-1] = state[state.size()-1] - dt*( (state[i])*(den.coeffs[i])); 
       }
-        state[state.size()-1] += dt*(u_now*j+(num_steps-j)*input)/num_steps;
+        //apply input as first order hold
+        state[state.size()-1] += dt*(u_now*j+(num_steps-j)*input)/(num_steps+1);
     }
     
     output = (num.coeffs*state).sum();
