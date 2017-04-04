@@ -196,7 +196,7 @@ SisoSystem operator*(const double& c, const SisoSystem& sys){
 
 SisoSystem operator/(const SisoSystem& sys1, const SisoSystem& sys2){
   Polynomial num = sys1.num*sys2.den;
-  Polynomial den = sys1.num*sys2.den;
+  Polynomial den = sys1.den*sys2.num;
   return SisoSystem(num.coeffs, den.coeffs, sys1.time, std::min(sys1.max_time_step,sys2.max_time_step));
 }
 
