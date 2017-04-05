@@ -3,6 +3,16 @@
 
 int main() {
   
+//   LTI::Polynomial p({1,2,3,4,5,6,7,8,9});
+//   LTI::Polynomial q({1,2,3,4});
+//   LTI::printPolynomial(p);
+//   LTI::printPolynomial(q);
+//   LTI::Polynomial r=q-p;
+//   LTI::printPolynomial(r);
+//   LTI::Polynomial s=p+q;
+//   LTI::printPolynomial(s);
+  
+  
   //Differentiator with 20rad/sec rolloff frequency
   LTI::array num({0,402}),den({400,40,1});  
   LTI::SisoSystem derivative(num,den,0.0,0.0001);
