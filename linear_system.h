@@ -151,6 +151,8 @@ public:
         state[i] += dt*state[i+1];
       }
       for(int i=0;i<state.size();i++){
+// (?) can abbreviate to
+// state[state.size()-1] -= dt*( (state[i])*(den.coeffs[i]));
         state[state.size()-1] = state[state.size()-1] - dt*( (state[i])*(den.coeffs[i])); 
       }
         //apply input as first order hold
